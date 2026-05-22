@@ -374,11 +374,30 @@
       border: 1px solid rgba(34, 197, 94, 0.35);
     }
 
-    .status.pending {
-      background: rgba(251, 191, 36, 0.18);
-      color: #fde68a;
-      border: 1px solid rgba(251, 191, 36, 0.35);
-    }
+.status.pending {
+  background: rgba(251, 191, 36, 0.18);
+  color: #fde68a;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+}
+
+.status.lost {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fecaca;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+}
+
+.status.win {
+  background: rgba(34, 197, 94, 0.18);
+  color: #86efac;
+  border: 1px solid rgba(34, 197, 94, 0.35);
+}
+
+.status.handal {
+  background: rgba(250, 204, 21, 0.22);
+  color: #fde68a;
+  border: 1px solid rgba(250, 204, 21, 0.55);
+  box-shadow: 0 0 12px rgba(250, 204, 21, 0.35);
+}
 
     .history-info {
       margin-top: 8px;
@@ -680,46 +699,63 @@
       window.open("https://example.com/leaderboard", "_blank");
     }
 
-    function renderDashboard() {
-      document.getElementById("ticketStock").textContent = ticketStock;
-      document.getElementById("historyCount").textContent = historyData.length + " data";
+function renderDashboard() {
+  document.getElementById("ticketStock").textContent = ticketStock;
+  document.getElementById("historyCount").textContent = historyData.length + " data";
 
-      const list = document.getElementById("historyList");
-      const empty = document.getElementById("emptyState");
+  const list = document.getElementById("historyList");
+  const empty = document.getElementById("emptyState");
 
-      list.innerHTML = "";
+  list.innerHTML = "";
 
-      if (historyData.length === 0) {
-        empty.style.display = "block";
-        return;
-      }
+  if (historyData.length === 0) {
+    empty.style.display = "block";
+    return;
+  }
 
-      empty.style.display = "none";
+  empty.style.display = "none";
 
-      historyData.forEach((item, index) => {
-        const isPending = String(item.status).toLowerCase() === "menunggu";
-        const card = document.createElement("div");
-        card.className = "history-card";
+  historyData.forEach((item, index) => {
+    const statusText = String(item.status || "MENUNGGU").toUpperCase();
+    const point = Number(item.point || 0);
 
-        card.innerHTML = `
-          <div class="ticket-icon">${index + 1}</div>
-          <div>
-            <div class="history-top">
-              <div class="match-name">${item.match}</div>
-              <div class="status ${isPending ? "pending" : "used"}">${item.status}</div>
-            </div>
-            <div class="history-info">
-              <div class="info-box">Prediksi <b>${item.prediction}</b></div>
-              <div class="info-box">Tanggal <b>${item.date}</b></div>
-              <div class="info-box">Kode Ticket <b>${item.ticketCode}</b></div>
-              <div class="info-box">Member <b>${currentMemberId}</b></div>
-            </div>
-          </div>
-        `;
+let statusClass = "pending";
 
-        list.appendChild(card);
-      });
-    }
+if (statusText === "KALAH") {
+  statusClass = "lost";
+}
+
+if (statusText === "MENANG") {
+  statusClass = "win";
+}
+
+if (statusText === "PENEBAK HANDAL") {
+  statusClass = "handal";
+}
+
+    const card = document.createElement("div");
+    card.className = "history-card";
+
+    card.innerHTML = `
+      <div class="ticket-icon">${index + 1}</div>
+      <div>
+        <div class="history-top">
+          <div class="match-name">${item.match || "-"}</div>
+          <div class="status ${statusClass}">${statusText}</div>
+        </div>
+
+        <div class="history-info">
+          <div class="info-box">Prediksi <b>${item.prediction || "-"}</b></div>
+          <div class="info-box">Tanggal <b>${item.date || "-"}</b></div>
+          <div class="info-box">Kode Ticket <b>${item.ticketCode || "-"}</b></div>
+          <div class="info-box">Point <b>${point}</b></div>
+        </div>
+      </div>
+    `;
+
+    list.appendChild(card);
+  });
+}
 
     async function useTicket() {
       const match = document.getElementById("matchSelect").value;
