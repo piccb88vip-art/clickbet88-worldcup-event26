@@ -2326,117 +2326,87 @@ JANGAN LEWATKAN HADIAH MENARIK DARI CLICKBET88
         list.appendChild(card);
       });
     }
+async function useTicket(evt) {
+  const scoreHome = document.getElementById("scoreHome").value.trim();
+  const scoreAway = document.getElementById("scoreAway").value.trim();
+  const submitButton = evt ? evt.target : null;
 
-    async function useTicket(evt) {
-      const scoreHome =
-        document.getElementById("scoreHome").value.trim();
+  if (ticketStock <= 0) {
+    alert("Stok ticket kamu sudah habis.");
+    return;
+  }
 
-      const scoreAway =
-        document.getElementById("scoreAway").value.trim();
+  const selected = matches.find((m) => m.matchId === selectedMatch);
 
-      const submitButton = evt
-        ? evt.target
-        : null;
+  if (!selected) {
+    alert("Pilih match terlebih dahulu.");
+    return;
+  }
 
-      if (ticketStock <= 0) {
-        alert("Stok ticket kamu sudah habis.");
-        return;
-      }
+  if (isMatchLocked(selected)) {
+    alert("Prediksi untuk match ini sudah ditutup.");
+    return;
+  }
 
-      const selected =
-        matches.find((m) => m.matchId === selectedMatch);
+  if (scoreHome === "" || scoreAway === "") {
+    alert("Isi prediksi skor terlebih dahulu.");
+    return;
+  }
 
-      if (!selected) {
-        alert("Pilih match terlebih dahulu.");
-        return;
-      }
+  const prediction = scoreHome + "-" + scoreAway;
+  const match = selected.teamA + " vs " + selected.teamB;
+  const matchId = selected.matchId;
 
-      if (isMatchLocked(selected)) {
-        alert("Prediksi untuk match ini sudah ditutup.");
-        return;
-      }
+  if (submitButton) {
+    submitButton.disabled = true;
+    submitButton.textContent = "Menyimpan...";
+  }
 
-      if (scoreHome === "" || scoreAway === "") {
-        alert("Isi prediksi skor terlebih dahulu.");
-        return;
-      }
+  try {
+    const result = await postApi({
+      action: "submitPrediction",
+      userId: currentMemberId,
+      matchId: matchId,
+      prediction: prediction,
+    });
 
-      const prediction =
-        scoreHome + "-" + scoreAway;
-
-const match =
-  selected.teamA + " vs " + selected.teamB;
-
-const matchId =
-  selected.matchId;
-
-      if (submitButton) {
-        submitButton.disabled = true;
-        submitButton.textContent = "Menyimpan...";
-      }
-
-      try {
-const prediction = scoreHome + "-" + scoreAway;
-
-const match =
-  selected.teamA + " vs " + selected.teamB;
-
-const matchId =
-  selected.matchId;
-
-if (submitButton) {
-  submitButton.disabled = true;
-  submitButton.textContent = "Menyimpan...";
-}
-
-try {
-  const result = await postApi({
-    action: "submitPrediction",
-    userId: currentMemberId,
-    matchId: matchId,
-    prediction: prediction,
-  });
-
-        if (!result.success) {
-          alert(
-            "Gagal menyimpan prediksi: " +
-              (result.message || "Silakan coba lagi.")
-          );
-          return;
-        }
-
-        ticketStock -= 1;
-
-        historyData.unshift({
-          match,
-          prediction,
-          date: new Date().toLocaleDateString("id-ID"),
-          ticketCode: result.ticketCode || "-",
-          status: "MENUNGGU",
-          point: 0,
-        });
-
-        document.getElementById("scoreHome").value = "";
-        document.getElementById("scoreAway").value = "";
-
-        renderDashboard();
-        renderMatchCards();
-
-        showSuccessToast(match, prediction, ticketStock);
-
-        showPage("dashboardPage");
-
-      } catch (error) {
-        alert("Gagal terhubung ke server. Silakan coba lagi.");
-      } finally {
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = "Gunakan Ticket";
-        }
-      }
+    if (!result.success) {
+      alert(
+        "Gagal menyimpan prediksi: " +
+          (result.message || "Silakan coba lagi.")
+      );
+      return;
     }
 
-    function showSuccessToast(match, prediction, stockLeft) {
+    ticketStock -= 1;
+
+    historyData.unshift({
+      match: match,
+      prediction: prediction,
+      date: new Date().toLocaleDateString("id-ID"),
+      ticketCode: result.ticketCode || "-",
+      status: "MENUNGGU",
+      point: 0,
+    });
+
+    document.getElementById("scoreHome").value = "";
+    document.getElementById("scoreAway").value = "";
+
+    renderDashboard();
+    renderMatchCards();
+
+    showSuccessToast(match, prediction, ticketStock);
+    showPage("dashboardPage");
+
+  } catch (error) {
+    alert("Gagal terhubung ke server. Silakan coba lagi.");
+  } finally {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = "Gunakan Ticket";
+    }
+  }
+}
       document.getElementById("successMessage").innerHTML =
         `Prediksi kamu untuk <b>${match}</b><br>
         Skor: <b>${prediction}</b><br>
