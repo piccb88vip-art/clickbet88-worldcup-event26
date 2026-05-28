@@ -2364,8 +2364,11 @@ JANGAN LEWATKAN HADIAH MENARIK DARI CLICKBET88
       const prediction =
         scoreHome + "-" + scoreAway;
 
-      const match =
-        selected.teamA + " vs " + selected.teamB;
+const match =
+  selected.teamA + " vs " + selected.teamB;
+
+const matchId =
+  selected.matchId;
 
       if (submitButton) {
         submitButton.disabled = true;
@@ -2373,12 +2376,26 @@ JANGAN LEWATKAN HADIAH MENARIK DARI CLICKBET88
       }
 
       try {
-        const result = await postApi({
-          action: "submitPrediction",
-          userId: currentMemberId,
-          matchId: match,
-          prediction: prediction,
-        });
+const prediction = scoreHome + "-" + scoreAway;
+
+const match =
+  selected.teamA + " vs " + selected.teamB;
+
+const matchId =
+  selected.matchId;
+
+if (submitButton) {
+  submitButton.disabled = true;
+  submitButton.textContent = "Menyimpan...";
+}
+
+try {
+  const result = await postApi({
+    action: "submitPrediction",
+    userId: currentMemberId,
+    matchId: matchId,
+    prediction: prediction,
+  });
 
         if (!result.success) {
           alert(
