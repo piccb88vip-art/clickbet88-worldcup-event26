@@ -2407,20 +2407,21 @@ async function useTicket(evt) {
     }
   }
 }
-      document.getElementById("successMessage").innerHTML =
-        `Prediksi kamu untuk <b>${match}</b><br>
-        Skor: <b>${prediction}</b><br>
-        Sisa ticket: <b>${stockLeft}</b>`;
+function showSuccessToast(match, prediction, stockLeft) {
+  document.getElementById("successMessage").innerHTML =
+    `Prediksi kamu untuk <b>${match}</b><br>
+    Skor: <b>${prediction}</b><br>
+    Sisa ticket: <b>${stockLeft}</b>`;
 
-      document
-        .getElementById("successToast")
-        .classList.add("show");
+  document
+    .getElementById("successToast")
+    .classList.add("show");
 
-      setTimeout(
-        () => closeSuccessToast(),
-        3000
-      );
-    }
+  setTimeout(
+    () => closeSuccessToast(),
+    3000
+  );
+}
 
     function closeSuccessToast() {
       document
